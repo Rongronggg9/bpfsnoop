@@ -61,7 +61,9 @@ func NewBPFTracing(spec *ebpf.CollectionSpec, reusedMaps map[string]*ebpf.Map, b
 	var t bpfTracing
 
 	t.traceProgs(&errg, spec, reusedMaps, bprogs)
-	t.traceFuncs(&errg, spec, reusedMaps, kfuncs)
+	if err := t.traceFuncs(&errg, spec, reusedMaps, kfuncs); err != nil {
+		return nil, fmt.Errorf("failed to prepare tracing funcs: %w", err)
+	}
 
 	if err := t.traceInsns(&errg, reusedMaps, insns); err != nil {
 		return nil, fmt.Errorf("failed to trace kfunc insns: %w", err)

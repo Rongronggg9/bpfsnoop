@@ -160,14 +160,20 @@ func (t *bpfTracing) traceFunc(spec *ebpf.CollectionSpec, reusedMaps map[string]
 	return nil
 }
 
-func (t *bpfTracing) traceFuncs(errg *errgroup.Group, spec *ebpf.CollectionSpec, reusedMaps map[string]*ebpf.Map, kfuncs KFuncs) {
+func (t *bpfTracing) traceFuncs(errg *errgroup.Group, spec *ebpf.CollectionSpec, reusedMaps map[string]*ebpf.Map, kfuncs KFuncs) error {
 	if len(kfuncs) == 0 {
-		return
+		return nil
 	}
+
+	// collect kfuncs according to argument spec
 
 	for _, fn := range kfuncs {
 		bothEntryExit := fn.Insn || fn.Flag.graph || fn.Flag.both
 		fn := fn
+
+		if fn.Flag.multi {
+			continue
+		}
 
 		if fn.IsTp {
 			errg.Go(func() error {
@@ -197,4 +203,6 @@ func (t *bpfTracing) traceFuncs(errg *errgroup.Group, spec *ebpf.CollectionSpec,
 			})
 		}
 	}
+
+	return nil
 }

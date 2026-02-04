@@ -23,6 +23,7 @@ type progFlagImmInfo struct {
 	lbr      bool
 	both     bool
 	pkt      bool
+	multi    bool
 }
 
 type progFlags struct {

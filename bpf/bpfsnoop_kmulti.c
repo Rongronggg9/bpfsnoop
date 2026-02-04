@@ -20,6 +20,9 @@
 #include "bpfsnoop_stack_map.h"
 #include "bpfsnoop_tracing.h"
 
+volatile const __u32 PID = -1;
+volatile const __u32 CPU_MASK = 0xFFFF;
+
 __u32 ready SEC(".data.ready") = 0;
 
 static __always_inline bool
@@ -97,7 +100,7 @@ emit_bpfsnoop_kmulti_event(struct pt_regs *ctx)
     if (!ready)
         return BPF_OK;
 
-    cpu = bpf_get_smp_processor_id();
+    cpu = bpf_get_smp_processor_id() & CPU_MASK;
     lbr = &bpfsnoop_lbr_buff[cpu];
 
     if (is_kprobe_session_ctx())
@@ -114,6 +117,8 @@ emit_bpfsnoop_kmulti_event(struct pt_regs *ctx)
         retval = PT_REGS_RC(ctx);
 
     pid = bpf_get_current_pid_tgid() >> 32;
+    if (pid == PID)
+        return BPF_OK;
     if (cfg->pid && pid != cfg->pid)
         return BPF_OK;
 

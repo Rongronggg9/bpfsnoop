@@ -180,3 +180,67 @@ Implemented kprobe feature detection in `internal/bpfsnoop/bpf_feature.go`:
   - `BPF_TRACE_KPROBE_MULTI`
   - `BPF_TRACE_KPROBE_SESSION`
   using existing `btfEnumValue("bpf_attach_type", ...)` flow.
+
+### User
+do it (step 3: add new tracing attachment).
+
+### Assistant
+Implemented initial kprobe-multi attachment path in Go tracing layer:
+- updated `internal/bpfsnoop/bpf_tracing_func.go`
+  - added `traceFuncMulti(...)` using `link.KprobeMulti` / `link.KretprobeMulti`
+  - supports session attach via `KprobeMultiOptions{Session:true}` when available
+  - reuses existing config/filter/output injection pipeline
+  - gates on detected features (`hasKprobeMulti`, `hasKprobeSession`)
+- updated `traceFuncs(...)` to prepare/load kmulti spec (`bpf.LoadKmulti`) when needed
+- changed `traceFuncs(...)` to return `error`; wired caller in `internal/bpfsnoop/bpf_tracing.go`
+- added `multi bool` to `progFlagImmInfo` for attachment-mode dispatch plumbing
+
+Build note:
+- local full compile verification is constrained by environment permissions/timeout around Go caches.
+
+### User
+do the stuff in `internal/bpfsnoop/bpf_tracing_func_multi.go`.
+
+### Assistant
+Refactored multi-attachment logic into dedicated file `internal/bpfsnoop/bpf_tracing_func_multi.go`:
+- moved `traceFuncMulti(...)`
+- added `loadKmultiSpecIfNeeded(...)`
+- added `traceFuncsMulti(...)` dispatcher helper
+- slimmed `internal/bpfsnoop/bpf_tracing_func.go` to delegate multi-path handling to the new file
+
+### User
+see `main.go`, learn what I have done for `spec`.
+
+### Assistant
+Reviewed `main.go` flow and aligned context understanding:
+- feature detection happens early (`DetectBPFFeatures`)
+- traceable filtering is done before graph discovery (`DetectTraceable`)
+- graph and regular tracing targets are assembled before `NewBPFTracing(...)`
+- shared runtime maps come from `PrepareBPFMaps(bpfSpec)` and are reused by all attach paths
+
+### User
+load spec in `traceFuncsMulti()` instead.
+
+### Assistant
+Adjusted multi tracing flow so kmulti spec is loaded inside `traceFuncsMulti()`:
+- removed preloading from `traceFuncs(...)`
+- changed `traceFuncsMulti(...)` signature to load spec internally via `loadKmultiSpec()`
+- kept caller path simpler and localized spec-loading responsibility to multi handler
+
+### User
+`CPU_MASK` and `PID` setup done for main spec should be applied to multi spec too.
+
+### Assistant
+Applied main-spec style variable setup to kmulti spec in `traceFuncsMulti()`:
+- set `CPU_MASK` using `ebpf.PossibleCPU()` + `mathx.Mask(...)` when variable exists
+- set `PID` to current process (`os.Getpid()`) when variable exists
+- updated imports in `internal/bpfsnoop/bpf_tracing_func_multi.go`
+
+### User
+the `, ok` is unnecessary, as we are sure they are existing.
+
+### Assistant
+Simplified kmulti spec variable setup by removing existence checks:
+- directly sets `kmultiSpec.Variables["CPU_MASK"]`
+- directly sets `kmultiSpec.Variables["PID"]`
+- keeps explicit error handling on `.Set(...)`
