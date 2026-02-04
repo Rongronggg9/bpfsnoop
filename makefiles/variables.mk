@@ -49,6 +49,9 @@ INSN_BPF_SRC := bpf/bpfsnoop_insn.c bpf/bpfsnoop_event.h bpf/bpfsnoop_sess.h
 GRAPH_BPF_OBJ := $(DIR_BPF)/graph_bpfel.o $(DIR_BPF)/graph_bpfeb.o
 GRAPH_BPF_SRC := bpf/bpfsnoop_fgraph.c bpf/bpfsnoop_event.h bpf/bpfsnoop_sess.h bpf/bpfsnoop_fn_args_output.h bpf/bpfsnoop_stack.h
 
+KMULTI_BPF_OBJ := $(DIR_BPF)/kmulti_bpfel.o $(DIR_BPF)/kmulti_bpfeb.o
+KMULTI_BPF_SRC := bpf/bpfsnoop_kmulti.c $(wildcard bpf/*.h) $(wildcard bpf/headers/*.h)
+
 FEAT_BPF_OBJ := $(DIR_BPF)/feat_bpfel.o $(DIR_BPF)/feat_bpfeb.o
 FEAT_BPF_SRC := bpf/feature.c
 
@@ -70,6 +73,7 @@ TAILCALL_BPF_SRC := bpf/tailcall.c
 BPF_OBJS := $(BPFSNOOP_BPF_OBJ) \
 			$(INSN_BPF_OBJ) \
 			$(GRAPH_BPF_OBJ) \
+			$(KMULTI_BPF_OBJ) \
 			$(READ_BPF_OBJ) \
 			$(FEAT_BPF_OBJ) \
 			$(TAILCALL_BPF_OBJ) \

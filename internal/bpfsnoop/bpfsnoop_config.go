@@ -10,7 +10,7 @@ const (
 	configFlagOutputArgIdx
 	configFlagBothEntryExitIdx
 	configFlagIsEntryIdx
-	configFlagIsFsessionIdx
+	configFlagIsSessionIdx
 )
 
 type BpfsnoopConfig struct {
@@ -65,6 +65,6 @@ func (cfg *BpfsnoopConfig) SetIsEntry(v bool) {
 	}
 }
 
-func (cfg *BpfsnoopConfig) SetIsFsession(v bool) {
-	cfg.setFlags(v, configFlagIsFsessionIdx)
+func (cfg *BpfsnoopConfig) SetIsSession(v bool) {
+	cfg.setFlags(v, configFlagIsSessionIdx)
 }

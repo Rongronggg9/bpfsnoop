@@ -36,7 +36,7 @@ func setBpfsnoopConfig(spec *ebpf.CollectionSpec, funcIP uint64, fnArgsNr, fnArg
 	cfg.SetOutputArg(argDataSize != 0)
 	cfg.SetBothEntryExit(bothEntryExit)
 	cfg.SetIsEntry(!withRet)
-	cfg.SetIsFsession(fsession)
+	cfg.SetIsSession(fsession)
 	cfg.FilterPid = filterPid
 	cfg.FnArgsNr = uint32(fnArgsNr)
 	cfg.WithRet = withRet
