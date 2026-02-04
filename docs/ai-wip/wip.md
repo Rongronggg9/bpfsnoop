@@ -167,3 +167,16 @@ you should not run the cmdline as it costs almost 1min.
 
 ### Assistant
 Acknowledged. Will avoid running `make testlocal` unless explicitly requested due to runtime cost.
+
+### User
+follow our plan, detect kprobe features.
+
+### Assistant
+Implemented kprobe feature detection in `internal/bpfsnoop/bpf_feature.go`:
+- added package-level feature flags:
+  - `hasKprobeMulti`
+  - `hasKprobeSession`
+- extended `DetectBPFFeatures()` to detect:
+  - `BPF_TRACE_KPROBE_MULTI`
+  - `BPF_TRACE_KPROBE_SESSION`
+  using existing `btfEnumValue("bpf_attach_type", ...)` flow.
